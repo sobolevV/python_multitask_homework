@@ -3,7 +3,7 @@ from urllib import error
 from PIL import Image, ImageOps, UnidentifiedImageError
 from io import BytesIO
 import aiohttp, asyncio
-global status_report, sem, lock
+global status_report, sem
 
 # Report for check result
 status_report = {
@@ -13,7 +13,7 @@ status_report = {
                 "FAILED_POSTED": 0}
 # 'Common data locker'
 sem = asyncio.Semaphore(100)
-lock = asyncio.Lock()
+
 
 def get_images_from_url(url: str) -> list:
     images_list = None

@@ -12,6 +12,7 @@ status_report = {
     "FAILED_DOWNLOADED": 0,
     "SUCCESS_POSTED": 0,
     "FAILED_POSTED": 0}
+
 # 'Common data locker'
 sem = asyncio.Semaphore(150)
 
@@ -27,7 +28,6 @@ def get_images_from_url(url: str) -> list:
 
 
 async def image_handler(session, url: str, img_name: str, coroutine_index: int):
-    global sem
     """
     Coroutine function, which download image by url + img_name.
     Data converts to pillow.Image and mirror by Y axes
@@ -57,24 +57,23 @@ async def image_handler(session, url: str, img_name: str, coroutine_index: int):
             status_report["FAILED_DOWNLOADED"] += 1
             return
 
-    # Lock data with semaphore
-    async with sem:
-        try:
-            # Read bytes data to Image object
-            img = Image.open(BytesIO(data))
-        except Exception as exc:
-            print(exc)
-            return
 
-        # Mirror Image object and convert it back to bytes
-        post_data = BytesIO(ImageOps.mirror(img).tobytes())
+    try:
+        # Read bytes data to Image object
+        img = Image.open(BytesIO(data))
+    except Exception as exc:
+        print(exc)
+        return
 
-        # ТУТ УБРАН ОБРАБОТЧИК
-        # try:
-        # Post data to server
-        async with session.post(url, data=post_data) as post_resp:
-            print(f"Coroutine {coroutine_index} posted image {img_name} with status ", post_resp.status)
-        # except ...
+    # Mirror Image object and convert it back to bytes
+    post_data = BytesIO(ImageOps.mirror(img).tobytes())
+
+    # ТУТ УБРАН ОБРАБОТЧИК
+    # try:
+    # Post data to server
+    async with session.post(url, data=post_data) as post_resp:
+        print(f"Coroutine {coroutine_index} posted image {img_name} with status ", post_resp.status)
+    # except ...
 
 
 
